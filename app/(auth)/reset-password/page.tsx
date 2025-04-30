@@ -10,6 +10,8 @@ type Props = {
 export default async function ResetPasswordPage(prop: Props) {
   const { token } = await prop.searchParams;
 
+  // Helllooo
+
   return (
     <Suspense fallback={<div>Loading form...</div>}>
       <ResetPassword token={token as string} />
