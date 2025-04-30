@@ -32,6 +32,8 @@ export const sendPasswordResetEmail = async (email: string) => {
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    // redirectTo: `${"https://yourdomain.com"}/reset-password`,
+
     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
   });
   return { data, error };

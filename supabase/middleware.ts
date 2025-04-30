@@ -24,6 +24,12 @@ export async function updateSession(request: NextRequest) {
     error,
   } = await supabase.auth.getUser();
 
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  console.log({ session }, "session");
+
   const { pathname } = request.nextUrl;
 
   // Routes that do not require authentication
@@ -32,6 +38,7 @@ export async function updateSession(request: NextRequest) {
     "/signup",
     "/forgot-password",
     "/reset-password",
+    "/auth/confirm",
   ];
 
   const signInRoutes = ["/login", "/signup", "/forgot-password"];

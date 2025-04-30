@@ -8,7 +8,7 @@ import { createClient } from "@/supabase/client";
 import { signOut } from "@/app/actions/auth";
 import { toast } from "react-toastify";
 import { WithActions } from "@/components/general/toastify";
-import { redirect } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 
 const resetPasswordSchema = z
   .object({
@@ -28,6 +28,9 @@ type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 const Page = () => {
   const supabase = createClient();
 
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const {
     register,
     handleSubmit,
@@ -37,11 +40,27 @@ const Page = () => {
   });
 
   const onSubmit = async (data: ResetPasswordFormData) => {
+    const token_hash = searchParams.get("token_hash");
+
+    if (!token_hash) {
+      // setError('Invalid reset link');
+      console.error("Invalid reset link");
+      return;
+    }
+
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      type: "recovery",
+      token_hash,
+    });
+
+    if (verifyError) console.error({ verifyError });
+
     const { error } = await supabase.auth.updateUser({
       password: data.confirmPassword,
     });
 
     if (error) {
+      console.log(error, "error");
       toast(WithActions, {
         data: {
           content:
