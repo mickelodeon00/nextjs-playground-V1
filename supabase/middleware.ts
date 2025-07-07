@@ -28,7 +28,7 @@ export async function updateSession(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  console.log({ session }, "session");
+  // console.log({ session }, "session");
 
   const { pathname } = request.nextUrl;
 
