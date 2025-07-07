@@ -2,6 +2,8 @@
 
 import {
   CustomNotification,
+  CustomSplitButtons,
+  CustomWithActions,
   Form,
   OsxLike,
   SplitButtons,
@@ -23,15 +25,29 @@ export const ToastifyExample = () => {
     //     "shadow-lg overflow-visible scale-100 ring-1 ring-black/5 rounded-xl flex items-center gap-6 bg-slate-800 highlight-white/5",
     // });
 
-    toast(CustomNotification, {
-      data: {
-        title: "Oh Snap!",
-        content: "Something went wrong",
-      },
-      progress: 0.2,
-      ariaLabel: "Something went wrong",
-      autoClose: false,
-    });
+    // toast(CustomSplitButtons, {
+    //   data: {
+    //     title: "MFA Required",
+    //     content: "You haven't enabled MFA yet. Please do it from Settings.",
+    //     link: {
+    //       href: "/settings",
+    //       label: "Settings",
+    //     },
+    //   },
+    //   className:
+    //     "bg-zinc-900/40 backdrop-blur-lg shadow-inner shadow-zinc-600 border border-zinc-900/20 rounded-2xl text-white overflow-visible group bg-green-600 p-2",
+    //   closeButton: false,
+    // });
+
+    // toast(CustomNotification, {
+    //   data: {
+    //     title: "Oh Snap!",
+    //     content: "Something went wrong",
+    //   },
+    //   progress: 0.2,
+    //   ariaLabel: "Something went wrong",
+    //   autoClose: false,
+    // });
 
     // toast.error(CustomNotification, {
     //   data: {
@@ -45,6 +61,16 @@ export const ToastifyExample = () => {
     //   theme: "colored",
     // });
 
+    toast(CustomWithActions, {
+      data: {
+        title: "MFA",
+        content: "You haven't enabled MFA yet. Please do it from Settings.",
+      },
+      ariaLabel: "Message archived",
+      className: "w-[400px]",
+      autoClose: false,
+      closeButton: false,
+    });
     toast(WithActions, {
       data: {
         title: "Message Archived",
@@ -56,21 +82,21 @@ export const ToastifyExample = () => {
       closeButton: false,
     });
 
-    toast(SplitButtons, {
-      closeButton: false,
-      className: "p-0 w-[400px] border border-purple-600/40",
-      ariaLabel: "Email received",
-    });
+    // toast(SplitButtons, {
+    //   closeButton: false,
+    //   className: "p-0 w-[400px] border border-purple-600/40",
+    //   ariaLabel: "Email received",
+    // });
 
-    toast(Form, {
-      ariaLabel: "Give feedback",
-    });
+    // toast(Form, {
+    //   ariaLabel: "Give feedback",
+    // });
 
-    toast(OsxLike, {
-      className:
-        "bg-zinc-900/40 backdrop-blur-lg shadow-inner shadow-zinc-600 border border-zinc-900/20 rounded-2xl text-white overflow-visible group",
-      closeButton: false,
-    });
+    // toast(OsxLike, {
+    //   className:
+    //     "bg-zinc-900/40 backdrop-blur-lg shadow-inner shadow-zinc-600 border border-zinc-900/20 rounded-2xl text-white overflow-visible group",
+    //   closeButton: false,
+    // });
 
     // toast(WithProgress, {
     //   position: "top-left",

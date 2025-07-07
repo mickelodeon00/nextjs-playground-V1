@@ -5,9 +5,43 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInWithEmail } from "@/app/actions/auth";
 import { toast } from "react-toastify";
-import { OsxLike } from "@/components/general/toastify";
+import {
+  CustomSplitButtons,
+  CustomWithActions,
+  OsxLike,
+} from "@/components/general/toastify";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/supabase/client";
+import { useState } from "react";
+import MFAPopup from "@/components/auth/mfa-popup";
+
+const notifyMFA = async () => {
+  // 👇 Check for MFA
+
+  const supabase = createClient();
+  const { data: mfaData, error: mfaError } =
+    await supabase.auth.mfa.listFactors();
+
+  console.log("SignIn Data:", { mfaData, mfaError });
+  if (!mfaError && (!mfaData || mfaData.totp.length === 0)) {
+    toast(CustomWithActions, {
+      data: {
+        title: "MFA ",
+        content: "You haven't enabled MFA yet. Please do it from Settings.",
+        link: {
+          href: "/settings",
+          label: "Settings",
+        },
+      },
+      ariaLabel: "Message archived",
+      className: "w-[400px]",
+      autoClose: false,
+      closeButton: false,
+    });
+    // Optionally show a modal, redirect, or flag UI
+  }
+};
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -17,17 +51,23 @@ const loginSchema = z.object({
 type LoginFormInputs = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
+  // MFA related state
+  const [showMFAPopup, setShowMFAPopup] = useState(false);
+  const [mfaFactorId, setMfaFactorId] = useState("");
+  const [mfaChallengeId, setMfaChallengeId] = useState("");
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<LoginFormInputs>({
     resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormInputs) => {
-    const { error } = await signInWithEmail(data);
-    if (error) {
+    const result = await signInWithEmail(data);
+    if (result.error) {
       toast(OsxLike, {
         data: {
           title: "Error Signing In",
@@ -39,6 +79,35 @@ export default function LoginPage() {
       });
       return;
     }
+
+    // if (result.requiresMFA && result.factorId && result.challengeId) {
+    //   // Show MFA popup
+    //   setMfaFactorId(result.factorId);
+    //   setMfaChallengeId(result.challengeId);
+    //   setShowMFAPopup(true);
+
+    //   toast(OsxLike, {
+    //     data: {
+    //       title: "MFA Required",
+    //       content: "Please enter your authenticator code to continue.",
+    //     },
+    //     className:
+    //       "bg-zinc-900/40 backdrop-blur-lg shadow-inner shadow-zinc-600 border border-zinc-900/20 rounded-2xl text-white overflow-visible group",
+    //     closeButton: false,
+    //   });
+    // } else {
+    //   // No MFA required
+    //   toast(OsxLike, {
+    //     data: {
+    //       title: "Signed In",
+    //       content: "You have been signed in successfully.",
+    //     },
+    //     className:
+    //       "bg-zinc-900/40 backdrop-blur-lg shadow-inner shadow-zinc-600 border border-zinc-900/20 rounded-2xl text-white overflow-visible group",
+    //     closeButton: false,
+    //   });
+    //   redirect("/");
+    // }
     toast(OsxLike, {
       data: {
         title: "Signed In",
@@ -48,7 +117,32 @@ export default function LoginPage() {
         "bg-zinc-900/40 backdrop-blur-lg shadow-inner shadow-zinc-600 border border-zinc-900/20 rounded-2xl text-white overflow-visible group",
       closeButton: false,
     });
+
+    await notifyMFA();
     redirect("/");
+  };
+
+  const handleMFASuccess = () => {
+    // Reset form state
+    reset();
+    setShowMFAPopup(false);
+    setMfaFactorId("");
+    setMfaChallengeId("");
+
+    toast(OsxLike, {
+      data: {
+        title: "Authentication Complete",
+        content: "You have been signed in successfully.",
+      },
+      className:
+        "bg-zinc-900/40 backdrop-blur-lg shadow-inner shadow-zinc-600 border border-zinc-900/20 rounded-2xl text-white overflow-visible group",
+      closeButton: false,
+    });
+  };
+  const handleMFAClose = () => {
+    setShowMFAPopup(false);
+    setMfaFactorId("");
+    setMfaChallengeId("");
   };
 
   return (
@@ -72,11 +166,10 @@ export default function LoginPage() {
             type="email"
             id="email"
             {...register("email")}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-              errors.email
+            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.email
                 ? "border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:ring-blue-500"
-            }`}
+              }`}
             placeholder="Enter your email"
           />
           {errors.email && (
@@ -96,11 +189,10 @@ export default function LoginPage() {
             type="password"
             id="password"
             {...register("password")}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-              errors.password
+            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${errors.password
                 ? "border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:ring-blue-500"
-            }`}
+              }`}
             placeholder="Enter your password"
           />
           {errors.password && (
@@ -134,6 +226,14 @@ export default function LoginPage() {
           </Link>
         </p>
       </div>
+      {/* MFA Popup */}
+      {/* <MFAPopup
+        isOpen={showMFAPopup}
+        onClose={handleMFAClose}
+        factorId={mfaFactorId}
+        challengeId={mfaChallengeId}
+        onSuccess={handleMFASuccess}
+      /> */}
     </div>
   );
 }

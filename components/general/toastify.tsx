@@ -2,10 +2,17 @@ import cx from "clsx";
 import { Archive } from "lucide-react";
 import { ToastContentProps } from "react-toastify";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
+type Link = {
+  label: string;
+  href: string;
+};
 type CustomNotificationProps = ToastContentProps<{
   title: string;
   content: string;
+  link?: Link;
+  showUndo?: boolean;
 }>;
 
 export const CustomNotification = ({
@@ -81,6 +88,72 @@ export const WithActions = ({ closeToast, data }: CustomNotificationProps) => {
     </div>
   );
 };
+export const CustomWithActions = ({
+  closeToast,
+  data,
+}: CustomNotificationProps) => {
+  return (
+    <div className="flex items-start gap-3 p-4 bg-white border border-zinc-200 rounded-lg shadow-sm">
+      <div className="flex-shrink-0 mt-0.5">
+        <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center">
+          <Archive className="w-4 h-4 text-blue-600" />
+        </div>
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <h4 className="text-sm font-medium text-zinc-900 mb-1">{data.title}</h4>
+        <p className="text-sm text-zinc-600 leading-relaxed">{data.content}</p>
+
+        <div className="flex items-center gap-3 mt-3">
+          {data.showUndo && (
+            <button
+              onClick={closeToast}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              Undo
+            </button>
+          )}
+
+          {data.link && (
+            <a
+              href={data.link.href}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+              onClick={closeToast}
+            >
+              {data.link.label}
+            </a>
+          )}
+
+          <button
+            onClick={closeToast}
+            className="text-sm font-medium text-zinc-500 hover:text-zinc-700 transition-colors"
+          >
+            Dismiss
+          </button>
+        </div>
+      </div>
+
+      <button
+        onClick={closeToast}
+        className="flex-shrink-0 p-1 text-zinc-400 hover:text-zinc-600 transition-colors"
+      >
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+  );
+};
 
 export const SplitButtons = ({ data, closeToast }: CustomNotificationProps) => {
   return (
@@ -97,6 +170,35 @@ export const SplitButtons = ({ data, closeToast }: CustomNotificationProps) => {
       <div className="grid grid-rows-[1fr_1px_1fr] h-full">
         <button onClick={closeToast} className="text-purple-600">
           Reply
+        </button>
+        <div className="bg-zinc-900/20 w-full" />
+        <button onClick={closeToast}>Ignore</button>
+      </div>
+    </div>
+  );
+};
+export const CustomSplitButtons = ({
+  data,
+  closeToast,
+}: CustomNotificationProps) => {
+  return (
+    <div className="grid grid-cols-[1fr_1px_80px] w-full ">
+      <div className="flex flex-col ">
+        <h3 className="text-zinc-800 text-sm font-semibold">
+          {data ? data?.title : " Email Received"} j
+        </h3>
+        <p className="text-sm">
+          {data ? data?.content : "You received a new email from somebody"}
+        </p>
+      </div>
+      <div className="bg-zinc-900/20 h-full" />
+      <div className="grid grid-rows-[1fr_1px_1fr] h-full">
+        <button className="text-purple-600">
+          {data?.link ? (
+            <Link href={data?.link?.href}> {data?.link?.label}</Link>
+          ) : (
+            "Reply"
+          )}
         </button>
         <div className="bg-zinc-900/20 w-full" />
         <button onClick={closeToast}>Ignore</button>
