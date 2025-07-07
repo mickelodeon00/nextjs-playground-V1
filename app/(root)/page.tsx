@@ -35,7 +35,7 @@ export default function Home() {
               Get Started
             </Button>
             <Button className="rounded-full border border-solid border-gray-300 transition-colors flex items-center justify-center hover:bg-gray-100 font-medium text-sm sm:text-base h-10 sm:h-12 px-6">
-              Learn More
+              Learn More ...
             </Button>
           </div>
 
